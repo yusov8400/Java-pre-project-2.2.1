@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.jws.soap.SOAPBinding;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
@@ -23,22 +24,11 @@ public class UserDaoImp implements UserDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public User getUser(String model, int series) {
-        Query query = sessionFactory.getCurrentSession().createQuery("from Car where model = :model ");
+    public User getUserByCarInfo(String model, int series) {
+        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("from User where car.model = :model and car.series = :series");
         query.setParameter("model", model);
-        List<Car> carList = (List<Car>) ((org.hibernate.query.Query<?>) query).list();
-        Car car = null;
-        User user = null;
-        for (Car cars : carList) {
-            if (cars.getModel().equals(model) && cars.getSeries() == series) {
-                car = cars;
-            }
-        }
-
-        if (car != null) {
-            user = car.getUser();
-        }
-        return user;
+        query.setParameter("series",series);
+        return  query.getSingleResult();
     }
 
     @Override
